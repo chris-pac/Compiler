@@ -1,0 +1,55 @@
+#!/bin/bash
+
+testfile='Pr2UnitTests'
+TESTINPUT=""
+TESTCMD=$1
+
+verbose=false	
+correct=0
+incorrect=0
+
+if [[ $1 == "-v" ]]; then
+	verbose=true
+	TESTCMD=$2
+fi
+
+while read line ;do
+    if [[ $line != "" && $line != *"//"* ]]
+    then 
+    	if [[ $TESTINPUT != "" ]]
+    	then
+    		OLDIFS=$IFS
+    		
+			RESULT=`./$TESTCMD --scheme=Check --term="$TESTINPUT"`
+			
+			if [ "$verbose" = true ]; then
+				echo Expected $line Got $RESULT for test:
+				echo "./$TESTCMD --scheme=Check --term='"$TESTINPUT"'"
+			fi
+			
+			if [[ $RESULT != $line ]]
+			then
+				if [ "$verbose" = true ]; then
+					echo "^^^^^ FAILURE!!! FAILURE!!! ^^^^^"
+				else
+					echo Test Failed Expected $line got $RESULT
+					echo "./$TESTCMD --scheme=Check --term='"$TESTINPUT"'"
+				fi
+				incorrect=$(($incorrect + 1))
+			fi
+			
+			correct=$(($correct + 1))
+			
+    		TESTINPUT=""
+    		IFS=/
+        	IFS=$OLDIFS
+        else
+    		TESTINPUT=$line
+    	fi
+	fi
+	
+done < $testfile
+
+if [ "$verbose" = true ]; then
+	echo Completed with $incorrect failed tests out of $correct
+fi

@@ -1,0 +1,209 @@
+function void main() { var int n1 ; { var int n2; {n1 = n1 + n2; } }}
+OK
+function void main() { var int n1 ; { var int n2; {n1 = n1 + nXXXX; } }}
+ERROR
+function void main(int i, string s) { }
+OK
+function void main(int i, string s, foobar x) { }
+ERROR
+function void main(int i, string s) { var string x; x = s + i; }
+OK
+function void main(int i, string s) { var string x; x = s - i; }
+ERROR
+function void main(int i, string s) { var string x; x = s + i; }
+OK
+// cant subtract here
+function void main(int i, string s) { var string x; x = s - i; }
+ERROR
+function void main(int i, string s) { var string x; x += i; }
+OK
+function void main(int i, string s) { var string x; x += 20; }
+OK
+function void main(int i, string s) { var int Y; Y += 20; }
+OK
+function void main(int i, string s) { var int Y; Y += i; }
+OK
+// += int and string and assign to int
+function void main(int i, string s) { var int Y; Y += s; }
+ERROR
+function void main(boolean b) {var int x; var int y; b = x > y; }
+OK
+function void main(boolean b) {var int x; var int y; b = x; }
+ERROR
+function void main(boolean b) {var int x; var int y; b = "hello" == "world"; }
+OK
+function int foobar(string s) { } function void main(int b) { b = foobar("Hello"); }
+OK
+// Errors cause foobar takes a string.
+function int foobar(string s) { } function void main(int b) { b = foobar( 500 ); }
+ERROR
+// Errors cause foobar returns an int not string
+function int foobar(string s) { } function void main(string s) { s = foobar( s ); }
+ERROR
+function int foobar(string s) { } function void main(string s) { var int i; {i = foobar( s );} }
+OK
+// errors cause foobar returns int not string (Done in nested scope)
+function int foobar(string s) { } function void main(string s) { var int i; {s = foobar( s );} }
+ERROR
+function int foobar(string s) { } function void main(string s) { var boolean b; var int i; { if (b) {i = foobar( s );}} }
+OK
+// If errors cause b was changed from boolean to string
+function int foobar(string s) { } function void main(string s) { var string b; var int i; { if (b) {i = foobar( s );}} }
+ERROR
+function int foobar(string s) { } function void main(string s) { var boolean b; var int i; { if (5>6) {i = foobar( s );}} }
+OK
+function void main(int i ) { while (5>6) { i += 1; }}
+OK
+function void main(int i ) { while (5>6) { i += "hello"; }}
+ERROR
+function void main(boolean b ) {var int i; while ( i > 6 || b ) { i += 1; }}
+OK
+function void main(boolean b ) {var int i; while ( i > "hello" || b ) { i += 1; }}
+ERROR
+function void main(boolean b, int i, int j ) {var int i; while ( i > j || b ) { i += 1; }}
+OK
+// Error because of boolean > int
+function void main(boolean b, int i, int j ) {var int i; while ( b > j || b ) { i += 1; }}
+ERROR
+function void main( ) { var string x; { var int x; x = 6 ;}}
+OK
+function void main( ) { var string x; { var int x; x = "hello" ;}}
+ERROR
+function int foobar (string h, int s, string s2) { } function int main(string s ) { var int z; foobar("Hello", z, s); }
+OK
+function int foobar (string h, int s, string s2) { } function int main(string s ) { var int z; foobar("Hello", "Wrong Arg", s); }
+ERROR
+function int foobar (string h, int i, string s2) { } function int main(string s ) { var int z; foobar("Hello", main("k"), s); }
+OK
+function int foobar (string h, int i, string s2) { } function string main(string s ) { var int z; foobar("Hello", main("main returns string"), s); }
+ERROR
+function int main( int x ) { var int i; if (x>7) {  { return x; }} }
+OK
+function int main( int x ) { var int i; if (x>7) {  { return "Wrong"; }} }
+ERROR
+function int main( int x ) { var string v; if (x>7) { var int v; v = 7; { return v; }} }
+OK
+
+// Simple void return.
+function int main( ) { return ; }
+ERROR
+function void main( ) { return ; }
+OK
+
+class foo { int h () {}}
+OK
+class foo { glah h () {}}
+ERROR
+class foo { int h () {}}
+OK
+class foo { string s; int h () {}}
+OK
+class foo { foo2 s; int h () {}}
+ERROR
+class foo { foo s; int h () {}}
+OK
+
+class foo { string s; int h (int i) {}}
+OK
+class foo { string s; int h (bar i) {}}
+ERROR
+class foo { string s; int h (foo i) {}}
+OK
+
+class foo { string s; int h (foo f, int i) { i=5;}}
+OK
+class foo { string s; int h (foo f, int i) { i="ok";}}
+ERROR
+
+class foo { string s; int h (foo f, int i) { return i;}}
+OK
+class foo { string s; int h (foo f, int i) { return "ok";}}
+ERROR
+
+class foo { string s; } function void main() {var foo g; g.s = 5; }
+ERROR
+class foo { string s; } function void main() {var foo g; g.s = "ok"; }
+OK
+
+class foo { int i; } function void main() {var foo g; g = { i:5 }; }
+OK
+class foo { int i; string s;} function void main() {var foo g; g = { i:5, s:"ok" }; }
+OK
+class foo { int i; string s;} function void main() {var foo g; g = { i:5, s:6>8 }; }
+ERROR
+class foo { int i; string s;} function void main() {var string s; var foo g; g = { i:5, s:s }; }
+OK
+
+class foo { int i; string s;} function void main() {var string s; var foo g; g = { i:5 }; }
+OK
+class foo { int i; string s;} function void main() {var string s; var foo g; g = { i:"OK" }; }
+ERROR
+
+class foo { int i; int bar() { i=0; }  int gah() { bar(); }}
+OK
+class foo { int i; int bar(int g) { i=0; }  int gah() { bar(); }}
+ERROR
+class foo { int i; int bar(int g) { i=0; }  int gah() { bar(5); }}
+OK
+
+class foo { int i; string s; int bar(string v) { return i;}} function void main() {var string s; var foo g; g = { i:6 }; }
+OK
+
+class foo { int i; string s; int bar(string v) { return i;}} function void main() {var string s; var foo g; g.i=7; }
+OK
+class foo { int i; string s; int bar(string v) { return i;}} function void main() {var string s; var foo g; g.bar("OK"); }
+OK
+
+class foo { int i; string s; int bar(string v) { return i;} void gah(int g){ return ;}} function int main(int v) {var string s; var foo g; main(g.bar("OK")); }
+OK
+class foo { int i; string s; int bar(string v) { return i;} void gah(int g){ return ;}} function int main(int v) {var string s; var foo g; g.gah(main(g.bar("OK"))); }
+OK
+class foo { int i; string s; int bar(string v) { return i;} void gah(int g){ return ;}} function int main(int v) {var string s; var foo g; g.gah(main(g.bar(555))); }
+ERROR
+
+// returning a class
+class foo { int i; string s; int bar(string v) { return i;}} function foo main() {var foo g; return g; }
+OK
+class foo { int i; string s; int bar(string v) { return i;}} function foo main() {var foo g; return 5; }
+ERROR
+
+class foo { foo g; int i; int bar( ) { g = {i:5};}}
+OK
+class foo { foo g; int i; int bar( ) { g = {i:"NOT"};}}
+ERROR
+
+class foo { foo g; int i; int bar( ) { g.i=5;}}
+OK
+
+class foo { foo g; int i; int bar( ) { g.i="NOT";}}
+ERROR
+
+// THIS test
+class foo { foo g; int i; int bar( ) { this.i="ok";}}
+ERROR
+class foo { foo g; int i; int bar( ) { g.i=5;}}
+OK
+class foo { foo g; int i; int bar( ) { this.i=5;}}
+OK
+class foo { foo g; foo bar( ) { return this; }}
+OK
+class foo { foo g; foo bar( ) { return g; }}
+OK
+class foo { foo g; foo bar( ) { return 6; }}
+ERROR
+
+// more complicated classes
+class bar { int i1; string s2; int f1() { return i1;}} class foo { foo g;  int i; bar b; foo getC( string s ) { return this; }}
+OK
+class bar { int i1; string s2; int f1() { return i1;}} class foo { foo g;  int i; bar b; foo getC( string s ) { return this; }} function int compLen( string s) { return 5; } function void main() { var bar b; var foo f1; var foo f2; f2=f1.getC("ok"); }
+OK
+class bar { int i1; string s2; int f1() { return i1;}} class foo { foo g;  int i; bar b; foo getC( string s ) { return this; } void putB(bar b) {}} function int compLen( string s) { return 5; } function void main() { var bar b; var foo f1; var foo f2; f2=f1.getC("ok"); b={s2:"Hello"}; f1.putB(b);}
+OK
+class bar { int i1; string s2; int f1(int v) { return i1;}} class foo { foo g;  int i; bar b; foo getC( string s ) { return this; } void putB(bar b) {}} function int compLen( string s) { return 5; } function void main() { var bar b; var foo f1; var foo f2; f2=f1.getC("ok"); b={s2:"Hello"}; f1.putB(b); f1.i=compLen("ok");}
+OK
+
+// fastfib inspired
+class Pair { int fst; int snd; } function int fastfib(int n) { return foobar(5).snd; } function Pair foobar (int i) {}
+OK
+
+
